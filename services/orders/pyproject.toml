@@ -1,0 +1,14 @@
+[project]
+name = "orders"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.16.2",
+    "fastapi>=0.115.14",
+    "mypy>=1.16.1",
+    "ruff>=0.12.2",
+    "sqlalchemy>=2.0.41",
+    "uvicorn>=0.35.0",
+]
