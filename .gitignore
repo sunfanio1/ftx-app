@@ -11,3 +11,5 @@ wheels/
 
 # idea stuff
 .idea
+
+infrastructure/olly/grafana_data

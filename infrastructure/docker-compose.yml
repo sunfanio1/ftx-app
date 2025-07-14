@@ -1,0 +1,77 @@
+networks:
+  ftx-app:
+    driver: bridge
+
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.5
+    container_name: zookeeper
+    restart: unless-stopped
+    networks:
+      - ftx-app
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+      image: confluentinc/cp-kafka:7.2.5
+      container_name: kafka
+      restart: unless-stopped
+      depends_on:
+        - zookeeper
+      networks:
+        - ftx-app
+      ports:
+        - "9092:9092"
+        - "29092:29092"
+      environment:
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+        KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+        KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+        KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+        KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+
+        KAFKA_HEAP_OPTS: "-Xms512m -Xmx1024m"
+
+      volumes:
+        - kafka-data:/var/lib/kafka/data
+      healthcheck:
+        test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:9092" ]
+        interval: 15s
+        timeout: 20s
+        retries: 5
+        start_period: 60s
+
+  orders:
+    build:
+      context: .././services/orders
+      dockerfile: Dockerfile
+    container_name: orders_service
+    restart: always
+    volumes:
+      - .././services/orders:/app
+      - venv-cache:/root/.cache/uv
+    environment:
+      PORT: 8000
+      ENVIRONMENT: production
+    command: ["sh", "./docker-entrypoint.sh"]
+    networks:
+      - ftx-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka
+
+
+volumes:
+  kafka-data:
+  venv-cache:
+
