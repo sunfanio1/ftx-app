@@ -5,7 +5,7 @@ from sqlalchemy import Uuid, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from geoalchemy2 import Geometry
 
-from services.orders.src.repositories.tables.base import Base
+from src.repositories.tables.base import Base
 
 
 class Orders(Base):

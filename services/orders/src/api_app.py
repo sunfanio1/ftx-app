@@ -1,4 +1,5 @@
 import os
+from typing import cast
 
 import uvicorn
 from fastapi import FastAPI
@@ -7,13 +8,17 @@ import sentry_sdk
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.routes.v1 import orders
+from src.settings import Settings
 
-def create_app() -> FastAPI:
+
+def create_app(settings: Settings) -> FastAPI:
     app = FastAPI()
+    settings = Settings()
+    app.extra = {"settings": settings}
     app.include_router(orders.router, prefix="/api")
     return app
 
-app = create_app()
+app = create_app(Settings)
 
 Instrumentator().instrument(app).expose(app)
 
