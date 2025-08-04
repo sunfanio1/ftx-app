@@ -1,4 +1,4 @@
-# Fake taxi app (~yandex taxi)
+# Fake taxi app 
 
 ### Profile all system with perforator
 
